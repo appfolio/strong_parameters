@@ -29,7 +29,7 @@ module ActionController
     def require(key)
       self[key].presence || raise(ActionController::ParameterMissing.new(key))
     end
-    
+
     alias :required :require
 
     def permit(*filters)
@@ -75,7 +75,8 @@ module ActionController
     end
 
     def dup
-      super.tap do |duplicate|
+      self.class.new(self).tap do |duplicate|
+        duplicate.default = default
         duplicate.instance_variable_set :@permitted, @permitted
       end
     end
