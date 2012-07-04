@@ -1,10 +1,11 @@
 require 'test_helper'
 require 'action_controller/parameters'
 
+
 class ParametersTaintTest < ActiveSupport::TestCase
   setup do
-    @params = ActionController::Parameters.new({ person: { 
-      age: "32", name: { first: "David", last: "Heinemeier Hansson" }
+    @params = ActionController::Parameters.new({ :person=> { 
+      :age=> "32", :name=> { :first=> "David", :last=> "Heinemeier" }
     }})
   end
 
@@ -34,18 +35,30 @@ class ParametersTaintTest < ActiveSupport::TestCase
   end
 
   test "permitted is sticky on mutators" do
-    assert !@params.delete_if { |k| k == :person }.permitted?
-    assert !@params.keep_if { |k,v| k == :person }.permitted?
+    assert !@params.delete_if { |k,v| k == :person }.permitted?
+    #assert !@params.keep_if { |k,v| k == :person }.permitted?     ### keep_if is not present in 3.1,its a feature of Rails 3.2 . So commenting it out
+  end
+
+  test "deleting the parameters" do
+    params = {:app_bundle => {"release_path"=>"test", 
+                              "domain_name"=>"foo.bar.com", 
+                              "name"=>"thenewapp", 
+                              "repository_name"=>"https://repo2.com/branches", 
+                              "supports_primary_user"=>"1"}}
+    params = ActionController::Parameters.new(params)
+    
+    x = params[:app_bundle].delete(:repository_name)
+    assert_equal "https://repo2.com/branches", x
+    assert_nil params[:app_bundle]["repository_name"]
   end
 
   test "permitted is sticky beyond merges" do
-    assert !@params.merge(a: "b").permitted?
+    assert !@params.merge(:a=> "b").permitted?
   end
 
   test "modifying the parameters" do
     @params[:person][:hometown] = "Chicago"
-    @params[:person][:family] = { brother: "Jonas" }
-
+    @params[:person][:family] = { :brother=> "Jonas" }
     assert_equal "Chicago", @params[:person][:hometown]
     assert_equal "Jonas", @params[:person][:family][:brother]
   end

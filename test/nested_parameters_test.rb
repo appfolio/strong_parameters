@@ -4,23 +4,23 @@ require 'action_controller/parameters'
 class NestedParametersTest < ActiveSupport::TestCase
   test "permitted nested parameters" do
     params = ActionController::Parameters.new({
-      book: {
-        title: "Romeo and Juliet",
-        authors: [{
-          name: "William Shakespeare",
-          born: "1564-04-26"
+      :book=> {
+        :title=> "Romeo and Juliet",
+        :authors=> [{
+          :name=> "William Shakespeare",
+          :born=> "1564-04-26"
         }, {
-          name: "Christopher Marlowe"
+          :name=> "Christopher Marlowe"
         }],
-        details: {
-          pages: 200,
-          genre: "Tragedy"
+        :details=> {
+          :pages=> 200,
+          :genre=> "Tragedy"
         }
       },
-      magazine: "Mjallo!"
+      :magazine=> "Mjallo!"
     })
 
-    permitted = params.permit book: [ :title, { authors: [ :name ] }, { details: :pages } ]
+    permitted = params.permit :book=> [ :title, { :authors=> [ :name ] }, { :details=> :pages } ]
 
     assert permitted.permitted?
     assert_equal "Romeo and Juliet", permitted[:book][:title]
@@ -34,62 +34,47 @@ class NestedParametersTest < ActiveSupport::TestCase
 
   test "nested arrays with strings" do
     params = ActionController::Parameters.new({
-      :book => {
-        :genres => ["Tragedy"]
+      :book=> {
+        :genres=> ["Tragedy"]
       }
     })
 
-    permitted = params.permit :book => :genres
+    permitted = params.permit :book=> :genres
     assert_equal ["Tragedy"], permitted[:book][:genres]
   end
 
-  test "permit may specify symbols or strings" do
+  test "nested array with strings that should be hashes" do       
     params = ActionController::Parameters.new({
-      :book => {
-        :title => "Romeo and Juliet",
-        :author => "William Shakespeare"
-      },
-      :magazine => "Shakespeare Today"
-    })
-
-    permitted = params.permit({:book => ["title", :author]}, "magazine")
-    assert_equal "Romeo and Juliet", permitted[:book][:title]
-    assert_equal "William Shakespeare", permitted[:book][:author]
-    assert_equal "Shakespeare Today", permitted[:magazine]
-  end
-
-  test "nested array with strings that should be hashes" do
-    params = ActionController::Parameters.new({
-      book: {
-        genres: ["Tragedy"]
+      :book=> {
+        :genres=> ["Tragedy"]
       }
     })
 
-    permitted = params.permit book: { genres: :type }
-    assert_empty permitted[:book][:genres]
+    permitted = params.permit :book=> { :genres=> :type }
+    assert permitted[:book][:genres].empty?
   end
 
-  test "nested array with strings that should be hashes and additional values" do
+  test "nested array with strings that should be hashes and additional values" do    
     params = ActionController::Parameters.new({
-      book: {
-        title: "Romeo and Juliet",
-        genres: ["Tragedy"]
+      :book=> {
+        :title=> "Romeo and Juliet",
+        :genres=> ["Tragedy"]
       }
     })
 
-    permitted = params.permit book: [ :title, { genres: :type } ]
+    permitted = params.permit :book=> [ :title, { :genres=> :type } ]
     assert_equal "Romeo and Juliet", permitted[:book][:title]
-    assert_empty permitted[:book][:genres]
+    assert permitted[:book][:genres].empty?
   end
 
   test "nested string that should be a hash" do
     params = ActionController::Parameters.new({
-      book: {
-        genre: "Tragedy"
+      :book=> {
+        :genre=> "Tragedy"
       }
     })
 
-    permitted = params.permit book: { genre: :type }
+    permitted = params.permit :book=> { :genre=> :type }
     assert_nil permitted[:book][:genre]
   end
 end

@@ -21,6 +21,10 @@ module ActionController
       @permitted = false
     end
 
+     def nested_under_indifferent_access    #### MonkeyPatched to support update operation on Hashes. It has been done for Rails 3.1.6
+     	self
+     end
+
     def permit!
       @permitted = true
       self
@@ -66,7 +70,7 @@ module ActionController
 
     def fetch(key, *args)
       convert_hashes_to_parameters(key, super)
-    rescue KeyError
+    rescue KeyError,IndexError
       raise ActionController::ParameterMissing.new(key)
     end
 
