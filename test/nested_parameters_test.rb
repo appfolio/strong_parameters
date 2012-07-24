@@ -80,14 +80,14 @@ class NestedParametersTest < ActiveSupport::TestCase
 
   test "fields_for_style_nested_params" do
     params = ActionController::Parameters.new({
-      book: {
-        authors_attributes: {
-          :'0' => { name: 'William Shakespeare', age_of_death: '52' },
-          :'1' => { name: 'Unattributed Assistant' }
+      :book => {
+        :authors_attributes => {
+          :'0' => {:name => 'William Shakespeare', :age_of_death => '52' },
+          :'1' => { :name => 'Unattributed Assistant' }
         }
       }
     })
-    permitted = params.permit book: { authors_attributes: [ :name ] }
+    permitted = params.permit :book => { :authors_attributes => [ :name ] }
 
     assert_not_nil permitted[:book][:authors_attributes]['0']
     assert_not_nil permitted[:book][:authors_attributes]['1']
