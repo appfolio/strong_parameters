@@ -79,7 +79,8 @@ module ActionController
     end
 
     def dup
-      super.tap do |duplicate|
+      self.class.new(self).tap do |duplicate|
+        duplicate.default = default
         duplicate.instance_variable_set :@permitted, @permitted
       end
     end
